@@ -6,18 +6,15 @@
 - `user-center-backend`：Spring Boot 容器，提供后端接口。
 - MySQL：继续使用服务器已有数据库，不放进 Docker，避免迁移现有数据。
 
-## 1. 构建产物
+后端容器只在 Docker 网络内暴露 `8080`，不占用宿主机 `8080`，避免和宝塔 Java 项目冲突。
 
-在项目根目录分别构建后端 jar 和前端 dist：
+## 1. 构建方式
 
-```bash
-cd user-center-backend
-mvn clean package -DskipTests
+本项目使用 Docker 多阶段构建，服务器只需要安装 Docker 和 Docker Compose，不需要安装 Maven 或 Node.js。
 
-cd ../user-center-frontend-vue
-npm install
-npm run build
-```
+后端镜像会先使用 Maven 镜像编译 jar，再复制到 Java 运行镜像中。
+
+前端镜像会先使用 Node 镜像执行 `npm install` 和 `npm run build`，再复制 `dist` 到 Nginx 镜像中。
 
 ## 2. 数据库配置
 
@@ -118,16 +115,10 @@ location /api/ {
 
 ## 6. 重新部署
 
-代码更新后重复：
+代码更新后拉取最新代码，并重新构建镜像：
 
 ```bash
-cd user-center-backend
-mvn clean package -DskipTests
-
-cd ../user-center-frontend-vue
-npm run build
-
-cd ..
+git pull
 docker compose up -d --build
 ```
 

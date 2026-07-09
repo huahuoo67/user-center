@@ -10,8 +10,8 @@ services:
       MYSQL_URL: ${MYSQL_URL}
       MYSQL_USERNAME: ${MYSQL_USERNAME}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
 
   frontend:
     build:
