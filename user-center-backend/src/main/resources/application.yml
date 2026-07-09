@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=http://json.schemastore.org/charts
+spring:
+  application:
+    name: user-center
+  profiles:
+    active: dev
+  session:
+    timeout: 86400
+server:
+  port: 8080
+mybatis-plus:
+  type-aliases-package: com.fzq.model
+  configuration:
+    map-underscore-to-camel-case: false # 转驼峰关闭，因为该项目使用的数据库是驼峰命名，即一样，而不是下划线，不需要转化
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除字段名
+      logic-delete-value: 1
+      logic-not-delete-value: 0
