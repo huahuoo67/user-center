@@ -6,8 +6,19 @@
         <p class="sub-title">账号、登录态和管理员权限的统一管理入口</p>
       </div>
       <a-space>
-        <a-button type="primary" @click="goTo('/user/register')">创建用户</a-button>
-        <a-button @click="goTo('/admin/userManage')">用户管理</a-button>
+        <template v-if="!loginUserStore.loginUser.id">
+          <a-button type="primary" @click="goTo('/user/register')">注册账号</a-button>
+          <a-button @click="goTo('/user/login')">去登录</a-button>
+        </template>
+        <template v-else>
+          <a-button type="primary" @click="goTo('/user/profile')">完善个人信息</a-button>
+          <a-button
+            v-if="loginUserStore.loginUser.userRole === 1"
+            @click="goTo('/admin/userManage')"
+          >
+            用户管理
+          </a-button>
+        </template>
       </a-space>
     </section>
 

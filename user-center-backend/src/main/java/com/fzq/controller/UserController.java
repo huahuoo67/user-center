@@ -29,9 +29,13 @@ public class UserController {
 	private UserService userService;
 
 	@PostMapping("/register")
-	public Result<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+	public Result<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest, HttpServletRequest request) {
 		if (userRegisterRequest == null) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
+		}
+		SafeUser loginUser = (SafeUser) request.getSession().getAttribute(USER_LOGIN_STATE);
+		if (loginUser != null && loginUser.getUserRole() != ADMIN_ROLE) {
+			throw new BusinessException(ErrorCode.NO_AUTH, "普通用户不能创建其他账号");
 		}
 		String userAccount = userRegisterRequest.getUserAccount();
 		String username = userRegisterRequest.getUsername();
