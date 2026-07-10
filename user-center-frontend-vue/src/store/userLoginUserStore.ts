@@ -19,5 +19,11 @@ export const useLoginUserStore = defineStore("loginUser", () => {
     loginUser.value = newLoginUser;
   }
 
-  return { loginUser, setLoginUser, fetchLoginUser };
+  function clearLoginUser() {
+    loginUser.value = {
+      username: "未登录",
+    };
+  }
+
+  return { loginUser, setLoginUser, clearLoginUser, fetchLoginUser };
 });

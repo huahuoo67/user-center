@@ -36,9 +36,16 @@
           {{ dayjs(record.createTime).format("YYYY-MM-DD HH:mm:ss") }}
         </template>
         <template v-else-if="column.key === 'action'">
-          <a-button danger @click="doDelete(record.id)">
-            删除
-          </a-button>
+          <a-popconfirm
+            title="确定删除这个用户吗？"
+            ok-text="删除"
+            cancel-text="取消"
+            @confirm="doDelete(record.id)"
+          >
+            <a-button danger :disabled="record.id === loginUserStore.loginUser.id">
+              {{ record.id === loginUserStore.loginUser.id ? "当前账号" : "删除" }}
+            </a-button>
+          </a-popconfirm>
         </template>
       </template>
     </a-table>
@@ -50,6 +57,9 @@ import {deleteUser, searchUsers} from "@/api/user.ts";
 import {message} from "ant-design-vue";
 import dayjs from "dayjs";
 import type { User } from "@/types/user";
+import { useLoginUserStore } from "@/store/userLoginUserStore";
+
+const loginUserStore = useLoginUserStore();
 
 const columns = [
   {

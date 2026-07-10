@@ -142,9 +142,13 @@ public class UserController {
 		if (noAdmin(request)) {
 			throw new BusinessException(ErrorCode.NO_AUTH);
 		}
+		SafeUser loginUser = (SafeUser) request.getSession().getAttribute(USER_LOGIN_STATE);
 		Long userId = deleteRequest == null ? null : deleteRequest.getId();
 		if (userId == null || userId <= 0) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
+		}
+		if (userId.equals(loginUser.getId())) {
+			throw new BusinessException(ErrorCode.PARAMS_ERROR, "不能删除当前登录的管理员账号");
 		}
 		if (!userService.removeById(userId)) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);

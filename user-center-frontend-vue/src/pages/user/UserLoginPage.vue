@@ -39,7 +39,7 @@
 
 <script lang="ts" setup>
 import { ref, reactive } from 'vue';
-import {useRouter} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {useLoginUserStore} from "@/store/userLoginUserStore.ts";
 import {userLogin} from "@/api/user.ts";
 import {message} from "ant-design-vue";
@@ -52,6 +52,7 @@ const form = reactive<LoginParams>({
 const submitting = ref(false);
 
 const router = useRouter();
+const route = useRoute();
 const loginUserStore = useLoginUserStore();
 
 /**
@@ -65,10 +66,10 @@ const handleSubmit = async () => {
     if (res.data.code === "200" && res.data.data) {
       await loginUserStore.fetchLoginUser();
       message.success("登录成功");
-      await router.push({
-        path: "/",
-        replace: true,
-      });
+      const redirect = typeof route.query.redirect === "string" && route.query.redirect.startsWith("/")
+        ? route.query.redirect
+        : "/";
+      await router.replace(redirect);
       return;
     }
     message.error(res.data.message || "登录失败");

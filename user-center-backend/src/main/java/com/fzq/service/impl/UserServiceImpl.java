@@ -110,7 +110,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 	@Override
 	public void userLogOut(HttpServletRequest request) {
-		request.getSession().removeAttribute(USER_LOGIN_STATE);
+		request.getSession().invalidate();
 	}
 
 	private boolean isValidUserAccount(String userAccount) {

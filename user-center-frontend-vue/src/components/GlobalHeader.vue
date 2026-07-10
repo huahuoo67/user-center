@@ -15,11 +15,27 @@
           @click="doMenuClick"
         />
       </a-col>
-      <a-col flex="80px">
+      <a-col flex="160px">
         <div class="user-login-status">
-          <div v-if="loginUserStore.loginUser.id">
-            {{ loginUserStore.loginUser.username || loginUserStore.loginUser.userAccount || "用户" }}
-          </div>
+          <a-dropdown v-if="loginUserStore.loginUser.id" placement="bottomRight">
+            <a class="user-menu-trigger" @click.prevent>
+              {{ currentUserName }}
+              <DownOutlined />
+            </a>
+            <template #overlay>
+              <a-menu @click="handleUserMenuClick">
+                <a-menu-item key="profile">
+                  <UserOutlined />
+                  个人信息
+                </a-menu-item>
+                <a-menu-divider />
+                <a-menu-item key="logout" danger>
+                  <LogoutOutlined />
+                  退出登录
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
           <div v-else>
             <a-button type="primary" href="/user/login">登录</a-button>
           </div>
@@ -30,14 +46,43 @@
 </template>
 <script lang="ts" setup>
 import { computed, h, ref } from "vue";
-import { CrownOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons-vue";
+import {
+  CrownOutlined,
+  DownOutlined,
+  HomeOutlined,
+  LogoutOutlined,
+  UserOutlined,
+} from "@ant-design/icons-vue";
 import type { MenuProps } from "ant-design-vue";
+import { message } from "ant-design-vue";
 import {useRouter } from "vue-router";
 import {useLoginUserStore} from "@/store/userLoginUserStore.ts";
+import { userLogout } from "@/api/user";
 
 const loginUserStore = useLoginUserStore();
 
 const router = useRouter();
+const currentUserName = computed(
+  () =>
+    loginUserStore.loginUser.username || loginUserStore.loginUser.userAccount || "用户",
+);
+
+const handleUserMenuClick: MenuProps["onClick"] = async ({ key }) => {
+  if (key === "profile") {
+    await router.push("/user/profile");
+    return;
+  }
+  if (key === "logout") {
+    const res = await userLogout();
+    if (res.data.code !== "200") {
+      message.error(res.data.message || "退出失败");
+      return;
+    }
+    loginUserStore.clearLoginUser();
+    message.success("已退出登录");
+    await router.replace("/user/login");
+  }
+};
 // 路由跳转事件
 const doMenuClick = ({ key }: { key: string }) => {
   router.push({
@@ -116,5 +161,22 @@ const items = computed<MenuProps["items"]>(() => {
 
 .logo {
   height: 48px;
+}
+
+.user-login-status {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+}
+
+.user-menu-trigger {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  max-width: 150px;
+  color: rgba(0, 0, 0, 0.88);
+  white-space: nowrap;
+  cursor: pointer;
 }
 </style>
