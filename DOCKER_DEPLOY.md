@@ -18,6 +18,15 @@
 
 ## 2. 数据库配置
 
+首次部署先在宝塔数据库管理或 MySQL 命令行中执行：
+
+```text
+user-center-backend/sql/create_table.sql
+```
+
+脚本会创建 `user_center` 数据库和 `user` 表。数据库名必须与根目录 `.env`
+中的 `MYSQL_URL` 保持一致。
+
 Docker 后端使用：
 
 ```text
@@ -39,6 +48,22 @@ extra_hosts:
 
 会让 Linux 服务器上的容器识别 `host.docker.internal`。
 
+复制环境变量模板并填写服务器的真实配置：
+
+```bash
+cp .env.example .env
+```
+
+其中 `ADMIN_PASSWORD` 必须设置为至少 8 位的强密码。应用仅在首次找不到管理员账号时创建它：
+
+```text
+ADMIN_ACCOUNT=admin
+ADMIN_PASSWORD=你设置的密码
+```
+
+后续重启或重新构建不会重置已有管理员的密码。如果不需要自动创建管理员，可设置
+`ADMIN_ENABLED=false`。
+
 ## 3. 启动容器
 
 回到项目根目录：
@@ -52,6 +77,8 @@ docker compose up -d --build
 ```bash
 docker compose ps
 ```
+
+正常情况下，`user-center-backend` 应显示为 `healthy`。如果后端反复重启或不健康，优先查看后端日志，常见原因是数据库未建表、MySQL 未允许 Docker 网段连接，或 `.env` 中数据库账号密码错误。
 
 查看后端日志：
 
@@ -121,6 +148,13 @@ location /api/ {
 git pull
 docker compose up -d --build
 ```
+
+部署后建议依次验证：
+
+1. 打开首页并注册一个不少于 4 位的账号，密码不少于 8 位。
+2. 使用新账号登录，刷新页面后确认仍保持登录状态。
+3. 使用 `.env` 中的 `ADMIN_ACCOUNT` 和首次部署时配置的 `ADMIN_PASSWORD` 登录。
+4. 进入用户管理页，确认能看到用户列表。
 
 如果需要清理旧容器：
 
