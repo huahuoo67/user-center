@@ -4,3 +4,8 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
+app:
+  admin:
+    enabled: ${ADMIN_ENABLED:false}
+    account: ${ADMIN_ACCOUNT:admin}
+    password: ${ADMIN_PASSWORD:}

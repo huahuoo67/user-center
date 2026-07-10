@@ -1,6 +1,10 @@
-CREATE DATABASE `yupi` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */ /*!80016 DEFAULT ENCRYPTION='N' */
+CREATE DATABASE IF NOT EXISTS `user_center`
+    DEFAULT CHARACTER SET utf8mb4
+    COLLATE utf8mb4_general_ci;
 
-CREATE TABLE `user` (
+USE `user_center`;
+
+CREATE TABLE IF NOT EXISTS `user` (
                         `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'id (主键)',
                         `userAccount` varchar(256) NOT NULL COMMENT '登录账号',
                         `userPassword` varchar(512) NOT NULL COMMENT '密码',
@@ -14,5 +18,6 @@ CREATE TABLE `user` (
                         `createTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
                         `updateTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
                         `isDelete` tinyint NOT NULL DEFAULT '0' COMMENT '是否删除 0 1 (逻辑删除)',
-                        PRIMARY KEY (`id`)
+                        PRIMARY KEY (`id`),
+                        UNIQUE KEY `uk_user_account` (`userAccount`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户表';
