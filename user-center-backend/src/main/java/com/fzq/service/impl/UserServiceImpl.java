@@ -25,7 +25,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 	private static final String USER_ACCOUNT_PATTERN = "^[a-zA-Z0-9_]{4,18}$";
 
 	@Override
-	public long userRegister(String userAccount, String userPassword, String checkPassword) {
+	public long userRegister(String userAccount, String username, String userPassword, String checkPassword) {
 		if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
 			throw new BusinessException(ErrorCode.PARAMS_NULL_ERROR);
 		}
@@ -38,6 +38,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		if (!checkPassword.equals(userPassword)) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
+		if (StringUtils.length(username) > 50) {
+			throw new BusinessException(ErrorCode.PARAMS_ERROR, "昵称不能超过 50 个字符");
+		}
 
 		// 先完成本地参数校验，再查库，减少无效数据库访问。
 		if (this.query().eq("userAccount", userAccount).exists()) {
@@ -46,6 +49,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 		User user = new User();
 		user.setUserAccount(userAccount);
+		user.setUsername(StringUtils.trimToNull(username));
 		user.setUserPassword(PASSWORD_ENCODER.encode(userPassword));
 		boolean result = this.save(user);
 		if (!result) {

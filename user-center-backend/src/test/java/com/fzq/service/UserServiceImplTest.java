@@ -21,7 +21,7 @@ class UserServiceImplTest {
 	void userRegisterShouldRejectBlankParams() {
 		// 空账号属于参数缺失，应该抛出统一业务异常。
 		BusinessException exception = Assertions.assertThrows(BusinessException.class,
-				() -> userService.userRegister("", "password123", "password123"));
+				() -> userService.userRegister("", null, "password123", "password123"));
 
 		Assertions.assertEquals(ErrorCode.PARAMS_NULL_ERROR.getCode(), exception.getCode());
 	}
@@ -30,7 +30,7 @@ class UserServiceImplTest {
 	void userRegisterShouldRejectInvalidAccount() {
 		// 账号长度不满足规则时，不应该继续进入查库或保存逻辑。
 		BusinessException exception = Assertions.assertThrows(BusinessException.class,
-				() -> userService.userRegister("ab", "password123", "password123"));
+				() -> userService.userRegister("ab", null, "password123", "password123"));
 
 		Assertions.assertEquals(ErrorCode.PARAMS_ERROR.getCode(), exception.getCode());
 	}
@@ -39,7 +39,7 @@ class UserServiceImplTest {
 	void userRegisterShouldRejectPasswordMismatch() {
 		// 两次密码不一致是常见注册错误，服务层需要兜底校验。
 		BusinessException exception = Assertions.assertThrows(BusinessException.class,
-				() -> userService.userRegister("testUser", "password123", "password456"));
+				() -> userService.userRegister("testUser", null, "password123", "password456"));
 
 		Assertions.assertEquals(ErrorCode.PARAMS_ERROR.getCode(), exception.getCode());
 	}

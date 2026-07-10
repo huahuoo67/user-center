@@ -10,11 +10,12 @@ public interface UserService extends IService<User> {
 	/**
 	 * 用户注册 1.这里因为user表中的id是long类型，所以这里返回long，不是int 2.如果只是用一下，就直接用，没必要使用包装类
 	 * @param userAccount 用户账户
+	 * @param username 可选昵称
 	 * @param userPassword 用户密码
 	 * @param checkPassword 校验密码
 	 * @return 新用户id
 	 */
-	long userRegister(String userAccount, String userPassword, String checkPassword);
+	long userRegister(String userAccount, String username, String userPassword, String checkPassword);
 
 	/**
 	 * 用户登录

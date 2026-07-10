@@ -7,6 +7,15 @@ import router from "@/router";
  */
 router.beforeEach(async (to, _from, next) => {
   const loginUserStore = useLoginUserStore();
+  if (to.path === "/user/profile") {
+    if (!loginUserStore.loginUser.id) {
+      await loginUserStore.fetchLoginUser();
+    }
+    if (!loginUserStore.loginUser.id) {
+      next(`/user/login?redirect=${to.fullPath}`);
+      return;
+    }
+  }
   if (to.path.startsWith("/admin")) {
     // 页面刷新后 Pinia 会丢失内存状态，进入管理页前先尝试恢复登录用户。
     if (!loginUserStore.loginUser.id) {

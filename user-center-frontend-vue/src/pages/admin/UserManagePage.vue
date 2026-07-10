@@ -3,15 +3,26 @@
     <a-input-search
       style="max-width: 320px"
       v-model:value="searchValue"
-      placeholder="输入用户名搜索"
+      placeholder="输入昵称或账号搜索"
       enter-button="搜索"
       size="large"
       @search="onSearch"
     />
-    <a-table :columns="columns" :data-source="data" :loading="loading" row-key="id">
+    <a-table
+      :columns="columns"
+      :data-source="data"
+      :loading="loading"
+      :scroll="{ x: 1450 }"
+      row-key="id"
+    >
       <template #bodyCell="{ column, record }">
         <template v-if="column.dataIndex === 'avatarUrl'">
-          <a-image :src="record.avatarUrl" :width="120" />
+          <a-avatar :src="record.avatarUrl">
+            {{ (record.username || record.userAccount || "用户").slice(0, 1) }}
+          </a-avatar>
+        </template>
+        <template v-else-if="column.dataIndex === 'gender'">
+          {{ genderText(record.gender) }}
         </template>
         <template v-else-if="column.dataIndex === 'userRole'">
           <div v-if="record.userRole === 1">
@@ -62,6 +73,19 @@ const columns = [
     dataIndex: "gender",
   },
   {
+    title: "电话",
+    dataIndex: "phone",
+  },
+  {
+    title: "邮箱",
+    dataIndex: "email",
+  },
+  {
+    title: "状态",
+    dataIndex: "userStatus",
+    customRender: ({ text }: { text?: number }) => (text === 0 ? "正常" : "禁用"),
+  },
+  {
     title: "创建时间",
     dataIndex: "createTime",
   },
@@ -78,6 +102,12 @@ const columns = [
 // 数据
 const data = ref<User[]>([]);
 const loading = ref(false);
+
+const genderText = (gender?: number) => {
+  if (gender === 1) return "男";
+  if (gender === 2) return "女";
+  return "保密";
+};
 
 //定义搜索
 const searchValue = ref("");

@@ -17,6 +17,13 @@
           <a-input v-model:value="form.userAccount" placeholder="请输入账号" />
         </a-form-item>
         <a-form-item
+          name="username"
+          label="昵称"
+          :rules="[{ max: 50, message: '昵称不能超过 50 个字符' }]"
+        >
+          <a-input v-model:value="form.username" placeholder="选填，之后也可以完善" />
+        </a-form-item>
+        <a-form-item
           name="userPassword"
           label="密码"
           :rules="[
@@ -58,6 +65,7 @@ import type { RegisterParams } from "@/types/user";
 
 const form = reactive<RegisterParams>({
   userAccount: "",
+  username: "",
   userPassword: "",
   checkPassword: "",
 });

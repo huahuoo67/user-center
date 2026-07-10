@@ -18,7 +18,7 @@
       <a-col flex="80px">
         <div class="user-login-status">
           <div v-if="loginUserStore.loginUser.id">
-            {{ loginUserStore.loginUser.username ?? "无名" }}
+            {{ loginUserStore.loginUser.username || loginUserStore.loginUser.userAccount || "用户" }}
           </div>
           <div v-else>
             <a-button type="primary" href="/user/login">登录</a-button>
@@ -29,8 +29,8 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { h, ref } from "vue";
-import { CrownOutlined, HomeOutlined } from "@ant-design/icons-vue";
+import { computed, h, ref } from "vue";
+import { CrownOutlined, HomeOutlined, UserOutlined } from "@ant-design/icons-vue";
 import type { MenuProps } from "ant-design-vue";
 import {useRouter } from "vue-router";
 import {useLoginUserStore} from "@/store/userLoginUserStore.ts";
@@ -51,39 +51,55 @@ router.afterEach((to) => {
   current.value = [to.path];
 });
 
-const items = ref<MenuProps["items"]>([
-  {
-    key: "/",
-    icon: () => h(HomeOutlined),
-    label: "主页",
-    title: "主页",
-  },
-  {
-    key: "/user/login",
-    label: "用户登录",
-    title: "用户登录",
-  },
-  {
-    key: "/user/register",
-    label: "用户注册",
-    title: "用户注册",
-  },
-  {
-    key: "/admin/userManage",
-    icon: () => h(CrownOutlined),
-    label: "用户管理",
-    title: "用户管理",
-  },
-  {
+const items = computed<MenuProps["items"]>(() => {
+  const menuItems: MenuProps["items"] = [
+    {
+      key: "/",
+      icon: () => h(HomeOutlined),
+      label: "主页",
+      title: "主页",
+    },
+  ];
+  if (loginUserStore.loginUser.id) {
+    menuItems.push({
+      key: "/user/profile",
+      icon: () => h(UserOutlined),
+      label: "个人信息",
+      title: "个人信息",
+    });
+  } else {
+    menuItems.push(
+      {
+        key: "/user/login",
+        label: "用户登录",
+        title: "用户登录",
+      },
+      {
+        key: "/user/register",
+        label: "用户注册",
+        title: "用户注册",
+      },
+    );
+  }
+  if (loginUserStore.loginUser.userRole === 1) {
+    menuItems.push({
+      key: "/admin/userManage",
+      icon: () => h(CrownOutlined),
+      label: "用户管理",
+      title: "用户管理",
+    });
+  }
+  menuItems.push({
     key: "others",
     label: h(
       "a",
       { href: "https://www.codefather.cn", target: "_blank" },
-      "编程导航"
+      "编程导航",
     ),
     title: "编程导航",
-  },
-]);
+  });
+  return menuItems;
+});
 </script>
 
 <style scoped>

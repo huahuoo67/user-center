@@ -23,7 +23,16 @@ export interface LoginParams {
 }
 
 export interface RegisterParams extends LoginParams {
+  username?: string;
   checkPassword: string;
+}
+
+export interface ProfileUpdateParams {
+  username?: string;
+  avatarUrl?: string;
+  gender?: number;
+  phone?: string;
+  email?: string;
 }
 
 export interface DeleteUserParams {

@@ -15,11 +15,12 @@
       <a-col :xs="24" :md="8">
         <a-card size="small" title="当前用户">
           <a-statistic
-            :value="loginUserStore.loginUser.username || '未登录'"
+            :value="currentUserName"
             :value-style="{ fontSize: '20px' }"
           />
           <a-tag v-if="loginUserStore.loginUser.userRole === 1" color="green">管理员</a-tag>
-          <a-tag v-else color="blue">普通用户</a-tag>
+          <a-tag v-else-if="loginUserStore.loginUser.id" color="blue">普通用户</a-tag>
+          <a-tag v-else>未登录</a-tag>
         </a-card>
       </a-col>
       <a-col :xs="24" :md="8">
@@ -32,8 +33,14 @@
       </a-col>
       <a-col :xs="24" :md="8">
         <a-card size="small" title="权限">
-          <a-statistic :value="loginUserStore.loginUser.userRole === 1 ? '管理权限' : '基础权限'" />
-          <a-button type="link" @click="goTo('/admin/userManage')">查看用户列表</a-button>
+          <a-statistic :value="permissionName" />
+          <a-button
+            v-if="loginUserStore.loginUser.userRole === 1"
+            type="link"
+            @click="goTo('/admin/userManage')"
+          >
+            查看用户列表
+          </a-button>
         </a-card>
       </a-col>
     </a-row>
@@ -53,11 +60,27 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useLoginUserStore } from "@/store/userLoginUserStore";
 
 const router = useRouter();
 const loginUserStore = useLoginUserStore();
+
+const currentUserName = computed(() => {
+  const user = loginUserStore.loginUser;
+  if (!user.id) {
+    return "未登录";
+  }
+  return user.username || user.userAccount || "用户";
+});
+
+const permissionName = computed(() => {
+  if (!loginUserStore.loginUser.id) {
+    return "未登录";
+  }
+  return loginUserStore.loginUser.userRole === 1 ? "管理权限" : "基础权限";
+});
 
 const features = [
   {

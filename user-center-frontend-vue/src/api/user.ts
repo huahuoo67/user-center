@@ -1,5 +1,12 @@
 import myAxios from "@/request";
-import type { ApiResponse, DeleteUserParams, LoginParams, RegisterParams, User } from "@/types/user";
+import type {
+  ApiResponse,
+  DeleteUserParams,
+  LoginParams,
+  ProfileUpdateParams,
+  RegisterParams,
+  User,
+} from "@/types/user";
 
 /**
  * 用户注册
@@ -42,6 +49,17 @@ export const getCurrentUser = async () => {
   return myAxios.request<ApiResponse<User>>({
     url: "/user/current",
     method: "GET",
+  });
+};
+
+/**
+ * 更新当前用户个人资料
+ */
+export const updateUserProfile = async (params: ProfileUpdateParams) => {
+  return myAxios.request<ApiResponse<User>>({
+    url: "/user/profile/update",
+    method: "POST",
+    data: params,
   });
 };
 

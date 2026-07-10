@@ -8,6 +8,7 @@ import com.fzq.model.entity.User;
 import com.fzq.model.request.SafeUser;
 import com.fzq.model.request.UserDeleteRequest;
 import com.fzq.model.request.UserLoginRequest;
+import com.fzq.model.request.UserProfileUpdateRequest;
 import com.fzq.model.request.UserRegisterRequest;
 import com.fzq.service.UserService;
 import jakarta.annotation.Resource;
@@ -33,12 +34,14 @@ public class UserController {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
 		String userAccount = userRegisterRequest.getUserAccount();
+		String username = userRegisterRequest.getUsername();
 		String userPassword = userRegisterRequest.getUserPassword();
 		String checkPassword = userRegisterRequest.getCheckPassword();
 		if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
 			throw new BusinessException(ErrorCode.PARAMS_ERROR);
 		}
-		return Result.success(ErrorCode.SUCCESS, userService.userRegister(userAccount, userPassword, checkPassword));
+		return Result.success(ErrorCode.SUCCESS,
+				userService.userRegister(userAccount, username, userPassword, checkPassword));
 	}
 
 	@PostMapping("/login")
@@ -63,6 +66,48 @@ public class UserController {
 		return Result.success(ErrorCode.SUCCESS, user);
 	}
 
+	@PostMapping("/profile/update")
+	public Result<SafeUser> updateProfile(@RequestBody UserProfileUpdateRequest updateRequest,
+			HttpServletRequest request) {
+		SafeUser loginUser = (SafeUser) request.getSession().getAttribute(USER_LOGIN_STATE);
+		if (loginUser == null) {
+			throw new BusinessException(ErrorCode.NOT_LOGIN);
+		}
+		if (updateRequest == null) {
+			throw new BusinessException(ErrorCode.PARAMS_ERROR);
+		}
+
+		String username = StringUtils.trimToNull(updateRequest.getUsername());
+		String avatarUrl = StringUtils.trimToNull(updateRequest.getAvatarUrl());
+		String phone = StringUtils.trimToNull(updateRequest.getPhone());
+		String email = StringUtils.trimToNull(updateRequest.getEmail());
+		Integer gender = updateRequest.getGender();
+		if (StringUtils.length(username) > 50 || StringUtils.length(avatarUrl) > 1024 || StringUtils.length(phone) > 128
+				|| StringUtils.length(email) > 512 || (gender != null && (gender < 0 || gender > 2))) {
+			throw new BusinessException(ErrorCode.PARAMS_ERROR);
+		}
+		if (email != null && !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+			throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式不正确");
+		}
+
+		User user = userService.getById(loginUser.getId());
+		if (user == null) {
+			throw new BusinessException(ErrorCode.NOT_LOGIN);
+		}
+		user.setUsername(username);
+		user.setAvatarUrl(avatarUrl);
+		user.setGender(gender);
+		user.setPhone(phone);
+		user.setEmail(email);
+		if (!userService.updateById(user)) {
+			throw new BusinessException(ErrorCode.SYSTEM_ERROR);
+		}
+
+		SafeUser safeUser = userService.getSafeUser(user);
+		request.getSession().setAttribute(USER_LOGIN_STATE, safeUser);
+		return Result.success(ErrorCode.SUCCESS, safeUser);
+	}
+
 	/**
 	 * 用户登出
 	 * @param request HTTP请求对象，用于获取当前会话
@@ -85,7 +130,7 @@ public class UserController {
 		}
 		QueryWrapper<User> queryWrapper = new QueryWrapper<>();
 		if (StringUtils.isNotBlank(username)) {
-			queryWrapper.like("username", username);
+			queryWrapper.and(wrapper -> wrapper.like("username", username).or().like("userAccount", username));
 		}
 		// 管理员列表也只返回脱敏字段，避免 userPassword 等实体字段出现在响应中。
 		List<User> list = userService.list(queryWrapper);
