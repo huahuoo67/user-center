@@ -62,4 +62,5 @@ public class AdminUserInitializer implements CommandLineRunner {
 		}
 		log.info("管理员账号 {} 初始化成功", adminAccount);
 	}
+
 }
